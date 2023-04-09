@@ -1,5 +1,4 @@
-﻿using MySql.Data.MySqlClient;
-using todo_app.database;
+﻿using todo_app.database;
 using todo_app.entity;
 
 namespace todo_app.repository;
@@ -11,12 +10,16 @@ public class TodoRepository {
 		_database = database;
 	}
 
-	public List<User> GetAllUsers() {
-		using MySqlDataReader reader = _database.Execute("SELECT * FROM todo");
-		var users = new List<User>();
-		while (reader.Read()) {
-			users.Add(User.FromSql(reader));
-		}
-		return users;
+	public void AddTodoItem(string username, string s) {
+		throw new NotImplementedException();
+	}
+	public IEnumerable<Todo> GetTodoItems(string username) {
+		throw new NotImplementedException();
+	}
+	public void SetTodoItemDone(string username, uint parse) {
+		throw new NotImplementedException();
+	}
+	public void DeleteTodoItem(string username, uint parse) {
+		throw new NotImplementedException();
 	}
 }
