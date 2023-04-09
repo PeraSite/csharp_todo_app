@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using MySql.Data.MySqlClient;
+﻿using MySql.Data.MySqlClient;
 using todo_app.database;
 using todo_app.entity;
 
@@ -15,7 +14,7 @@ public class UserRepository {
 	public bool IsExistUser(string username) {
 		var usernameParam = (new MySqlParameter("@name", MySqlDbType.VarChar, 256), username);
 		using MySqlDataReader reader = _database.Execute("SELECT 1 FROM user WHERE name = @name", usernameParam);
-		return reader.HasRows;
+		return reader.RecordsAffected > 0;
 	}
 
 	public bool AddUser(string username) {
@@ -24,7 +23,7 @@ public class UserRepository {
 
 		var usernameParam = (new MySqlParameter("@name", MySqlDbType.VarChar, 256), username);
 		using MySqlDataReader reader = _database.Execute("INSERT INTO user (name) VALUES (@name)", usernameParam);
-		return reader.HasRows;
+		return reader.RecordsAffected > 0;
 	}
 
 	public List<User> GetAllUsers() {
