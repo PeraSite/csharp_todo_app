@@ -27,7 +27,9 @@ internal static class Program {
 		}
 
 		// 계정 정보 확인
+		User user;
 		if (userRepository.IsExistUser(username)) {
+			user = userRepository.GetUser(username) ?? throw new Exception("계정 정보를 가져오는데 실패했습니다.");
 			Console.WriteLine($"반갑습니다, {username}님!");
 		} else {
 			var result = userRepository.AddUser(username);
@@ -37,6 +39,7 @@ internal static class Program {
 				return;
 			}
 			Console.WriteLine($"처음 뵙겠습니다, {username}님!");
+			user = userRepository.GetUser(username) ?? throw new Exception("계정 정보를 가져오는데 실패했습니다.");
 		}
 
 		// 메인 루프 시작
@@ -57,24 +60,39 @@ internal static class Program {
 			if (args is null || args.Length == 0)
 				break;
 			switch (args[0]) {
-				case "help":
+				case "help": {
 					PrintHelp();
 					break;
-				case "add":
-					todoRepository.AddTodoItem(username, args[1]);
+				}
+				case "add": {
+					var content = string.Join(" ", args.Skip(1));
+					var result = todoRepository.AddTodo(user, content);
+					Console.WriteLine(result ? "할 일을 추가했습니다." : "할 일을 추가하는데 실패했습니다.");
 					break;
-				case "list":
-					var items = todoRepository.GetTodoItems(username);
-					foreach (Todo item in items) {
-						Console.WriteLine($"{item.ID}: {item.Content}");
+				}
+				case "list": {
+					var items = todoRepository.GetAllTodo(user);
+					if (items.Count > 0) {
+						Console.WriteLine("할 일 목록:");
+						foreach (Todo item in items) {
+							Console.WriteLine($" - [{item.ID}] {item.Content}: {(item.Completed ? "O" : "X")}");
+						}
+					} else {
+						Console.WriteLine("할 일이 없습니다.");
 					}
+
 					break;
-				case "done":
-					todoRepository.SetTodoItemDone(username, uint.Parse(args[1]));
+				}
+				case "done": {
+					var result = todoRepository.SetTodoDone(uint.Parse(args[1]));
+					Console.WriteLine(result ? "할 일을 완료했습니다." : "할 일을 완료하는데 실패했습니다.");
 					break;
-				case "delete":
-					todoRepository.DeleteTodoItem(username, uint.Parse(args[1]));
+				}
+				case "delete": {
+					var result = todoRepository.DeleteTodo(uint.Parse(args[1]));
+					Console.WriteLine(result ? "할 일을 삭제했습니다." : "할 일을 삭제하는데 실패했습니다.");
 					break;
+				}
 				case "exit":
 					return;
 			}
