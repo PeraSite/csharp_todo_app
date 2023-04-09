@@ -2,7 +2,7 @@
 
 namespace todo_app.database;
 
-public class MySqlDatabase {
+public class MySqlDatabase : IDisposable {
 	private readonly MySqlConnection _connection;
 
 	public MySqlDatabase(
@@ -24,17 +24,36 @@ public class MySqlDatabase {
 	}
 
 	~MySqlDatabase() {
-		_connection.Close();
+		Dispose(false);
 	}
 
-	public MySqlDataReader Execute(string query) {
+	public MySqlDataReader Execute(string query, params (MySqlParameter param, object value)[] parameters) {
 		MySqlCommand cmd = new MySqlCommand(query, _connection);
+
+		foreach ((MySqlParameter param, var value) in parameters)
+			cmd.Parameters.Add(param).Value = value;
+
 		MySqlDataReader rdr = cmd.ExecuteReader();
 		return rdr;
 	}
 
-	public int ExecuteNonQuery(string query) {
+	public int ExecuteNonQuery(string query, params (MySqlParameter param, object value)[] parameters) {
 		MySqlCommand cmd = new MySqlCommand(query, _connection);
+
+		foreach ((MySqlParameter param, var value) in parameters)
+			cmd.Parameters.Add(param).Value = value;
+
 		return cmd.ExecuteNonQuery();
+	}
+
+	private void Dispose(bool disposing) {
+		if (disposing) {
+			_connection.Dispose();
+		}
+	}
+
+	public void Dispose() {
+		Dispose(true);
+		GC.SuppressFinalize(this);
 	}
 }
