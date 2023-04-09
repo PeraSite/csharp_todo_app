@@ -26,6 +26,15 @@ public class UserRepository {
 		return reader.RecordsAffected > 0;
 	}
 
+	public User? GetUser(string username) {
+		var usernameParam = (new MySqlParameter("@name", MySqlDbType.VarChar, 256), username);
+		using MySqlDataReader reader = _database.Execute("SELECT * FROM user WHERE name = @name", usernameParam);
+		if (!reader.HasRows)
+			return null;
+		reader.Read();
+		return User.FromSql(reader);
+	}
+
 	public List<User> GetAllUsers() {
 		using MySqlDataReader reader = _database.Execute("SELECT * FROM todo");
 		var users = new List<User>();
